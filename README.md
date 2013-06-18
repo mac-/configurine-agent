@@ -1,2 +1,1 @@
-node-configurine-client
-=======================
+# configurine-agent
