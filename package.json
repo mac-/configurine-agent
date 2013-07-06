@@ -1,0 +1,41 @@
+{
+	"name": "configurine-agent",
+	"description": "A Node JS application for syncing config from configurine to a file",
+	"contributors": [
+		"Mac Angell <mac.ang311@gmail.com>"
+	],
+	"version": "0.1.0",
+	"dependencies": {
+		"commander": "1.x.x",
+		"underscore": "1.x.x",
+		"configurine-client": "0.x.x",
+		"opter": "0.x.x"
+	},
+	"devDependencies": {
+		"mocha": "1.x.x",
+		"jshint": "0.x.x",
+		"travis-cov": "0.2.x",
+		"blanket": "1.0.x"
+	},
+	"keywords": [
+		"config"
+	],
+	"engines": {
+		"node": ">=0.10.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mac-/configurine-agent"
+	},
+	"scripts": {
+		"test": "make test && make test-cov",
+		"blanket": {
+			"pattern": "//^((?!\/node_modules\/)(?!\/test\/).)*$/ig",
+			"onlyCwd": true,
+			"data-cover-flags": {
+				"branchTracking": true
+			}
+		},
+		"travis-cov": { "threshold": 95 }
+	}
+}
