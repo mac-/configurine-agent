@@ -10,7 +10,6 @@
 		"underscore": "1.x.x",
 		"configurine-client": "0.x.x",
 		"opter": "0.x.x",
-		"async": "0.x.x",
 		"js-beautify": "1.x.x"
 	},
 	"devDependencies": {

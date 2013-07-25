@@ -2,7 +2,6 @@ var fs = require('fs'),
 	ConfigurineClient = require('configurine-client'),
 	_ = require('underscore'),
 	jsBeautifier = require('js-beautify'),
-	async = require('async'),
 	opter = require('opter'),
 	version = require('./package.json').version,
 	options = {
