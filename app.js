@@ -4,53 +4,7 @@ var fs = require('fs'),
 	jsBeautifier = require('js-beautify'),
 	opter = require('opter'),
 	version = require('./package.json').version,
-	options = {
-		configurineHost: {
-			argument: 'host',
-			description: 'The Configurine protocol, host, and port',
-			required: true
-		},
-		configurineClientId: {
-			argument: 'id',
-			description: 'The Configurine client ID',
-			required: true
-		},
-		configurineKey: {
-			argument: 'key',
-			description: 'The Configurine shared key',
-			required: true
-		},
-		configFile: {
-			argument: 'location',
-			description: 'The location of the file to sync',
-			required: true
-		},
-		indentSize: {
-			argument: 'number',
-			description: 'The number of spaces to indent the JSON with. 0 sets the indent to the TAB character.',
-			defaultValue: 0
-		},
-		appName: {
-			argument: 'name',
-			description: 'The name of the application that the config entries are associated to',
-			required: true
-		},
-		appVersion: {
-			argument: 'version',
-			description: 'The version of the application that the config entries are associated to',
-			required: true
-		},
-		environment: {
-			argument: 'name',
-			description: 'The name of the environment that the config entries are associated to',
-			defaultValue: 'production'
-		},
-		interval: {
-			argument: 'time',
-			description: 'The number of seconds to wait before each attempt to sync the config',
-			defaultValue: 120
-		}
-	},
+	options = require('./options.js'),
 	config = opter(options, version),
 	//TODO: provide multiple log transports
 	log = function(loglevel, msg, object) { console.log(loglevel, msg, object); },
@@ -62,14 +16,40 @@ var fs = require('fs'),
 	}),
 	indentCharacter = (config.indentSize > 0) ? ' ' : '\t',
 	indentSize = Math.max(1, config.indentSize),
+	appAssociation = {
+		name: config.appName,
+		version: config.appVersion
+	},
 	configurineClientOptions = {
 		associations: {
-			applications: [{
-				name: config.appName,
-				version: config.appVersion
-			}],
+			applications: [appAssociation],
 			environments: [config.environment]
 		}
+	},
+	associationPriority = {
+		applications: (config.associationPriority === 'app') ? 2 : 1,
+		environments: (config.associationPriority === 'env') ? 2 : 1,
+	},
+	containsObj = function(arr, obj) {
+		return !!_.find(arr, function(item) { return _.isEqual(item, obj); });
+	},
+
+	// picks a config entry from a collection based on the following priority:
+	//  - has both the matching app and env association
+	//  - has one of a matching app or env association (app or env may have a higher priority based on app settings (associationPriority))
+	//  - has no matching app or env associations
+	pickOne = function(entries) {
+		var sortedEntries = _.sortBy(entries, function(entry) {
+			var priority = 0;
+			for (var prop in associationPriority) {
+				if (entry.hasOwnProperty('associations') && entry.associations.hasOwnProperty(prop) &&
+					(_.contains(entry.associations[prop], config.environment) || containsObj(entry.associations[prop], appAssociation))) {
+					priority += associationPriority[prop];
+				}
+			}
+			return priority;
+		});
+		return sortedEntries.pop();
 	},
 
 	syncFile = function() {
@@ -86,14 +66,17 @@ var fs = require('fs'),
 			if (err) {
 				return log('error', 'Error retrieving config (' + names + ') from Configurine. ', err);
 			}
-			var i, counts = _.countBy(result, function(entry) { return entry.name; });
-			for (i =0; i < result.length; i++) {
-				if (counts[result[i].name] > 1) {
-					return log('error', 'There are multiple results for config (' + result[i].name + '). Doing nothing until conflict is resolved.');
+			var prop, groups = _.groupBy(result, function(entry) { return entry.name; });
+			for (prop in groups) {
+				if (groups.hasOwnProperty(prop)) {
+					if (groups[prop].length === 1) {
+						configFileJson[prop] = groups[prop][0].value;
+					}
+					else {
+						configFileJson[prop] = pickOne(groups[prop]).value;
+					}
 				}
-				configFileJson[result[i].name] = result[i].value;
 			}
-			
 			fs.writeFileSync(config.configFile, jsBeautifier(JSON.stringify(configFileJson), { 'indent_char': indentCharacter, 'indent_size': indentSize }));
 			log('info', 'Updated file: ' + config.configFile);
 		});
