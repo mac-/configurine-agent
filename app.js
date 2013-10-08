@@ -18,7 +18,7 @@ var fs = require('fs'),
 	indentSize = Math.max(1, config.indentSize),
 	appAssociation = {
 		name: config.appName,
-		version: config.appVersion
+		versions: [config.appVersion]
 	},
 	configurineClientOptions = {
 		associations: {
