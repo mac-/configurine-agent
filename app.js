@@ -28,7 +28,7 @@ var fs = require('fs'),
 	},
 	associationPriority = {
 		applications: (config.associationPriority === 'app') ? 2 : 1,
-		environments: (config.associationPriority === 'env') ? 2 : 1,
+		environments: (config.associationPriority === 'env') ? 2 : 1
 	},
 	containsObj = function(arr, obj) {
 		return !!_.find(arr, function(item) { return _.isEqual(item, obj); });
