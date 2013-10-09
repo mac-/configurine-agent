@@ -30,8 +30,8 @@ var fs = require('fs'),
 		applications: (config.associationPriority === 'app') ? 2 : 1,
 		environments: (config.associationPriority === 'env') ? 2 : 1
 	},
-	containsObj = function(arr, obj) {
-		return !!_.find(arr, function(item) { return _.isEqual(item, obj); });
+	containsAppAssociation = function(arr, obj) {
+		return !!_.find(arr, function(item) { return (item.name === obj.name && _.intersection(item.versions, obj.versions).length === 1); });
 	},
 
 	// picks a config entry from a collection based on the following priority:
@@ -43,7 +43,7 @@ var fs = require('fs'),
 			var priority = 0;
 			for (var prop in associationPriority) {
 				if (entry.hasOwnProperty('associations') && entry.associations.hasOwnProperty(prop) &&
-					(_.contains(entry.associations[prop], config.environment) || containsObj(entry.associations[prop], appAssociation))) {
+					(_.contains(entry.associations[prop], config.environment) || containsAppAssociation(entry.associations[prop], appAssociation))) {
 					priority += associationPriority[prop];
 				}
 			}
