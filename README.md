@@ -2,6 +2,12 @@
 
 Helper to be run in parallel with application that is consuming Configurine objects.  
 
+# Prerequesites
+
+  * Configurine must already have the client created
+  * JSON file must be a properly formatted json file and all configs that are wanted must be filled in as keys
+
+
 # deployment
 
 node app.js [options]
@@ -27,4 +33,5 @@ node app.js [options]
 ```
 node app.js -c "http://localhost:8088" -C "myclient" -k "12345f3-0892-4908-b50b-1bd2352313f2" -f "./AgentConfig.json" -a "SomeApplicationId" -A "1.0.0" -e "development" -p "app" 
 ```
+
 
