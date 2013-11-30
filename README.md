@@ -35,3 +35,7 @@ node app.js -c "http://localhost:8088" -C "myclient" -k "12345f3-0892-4908-b50b-
 ```
 
 
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mac-/configurine-agent/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
