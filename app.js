@@ -85,6 +85,8 @@ var fs = require('fs'),
 
 syncFile();
 
-setInterval(function() {
-	syncFile();
-}, config.interval * 1000);
+if (!config.runOnce) {
+    setInterval(function() {
+        syncFile();
+    }, config.interval * 1000);
+}

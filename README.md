@@ -25,6 +25,7 @@ node app.js [options]
     -e, --environment <name>                  (Optional) The name of the environment that the config entries are associated to Defaults to: "production"
     -p, --association-priority <association>  (Optional) When configurine returns multiple results, the agent needs to determine which associations are more important when deciding how to choose only one. Valid values are app and env Defaults to: "app"
     -I, --interval <time>                     (Optional) The number of seconds to wait before each attempt to sync the config Defaults to: 120
+    -r, --run-once <runOnce>                  (Optional) Turn off polling for the agent. Update the config file once, then quit.
 
 ```
 

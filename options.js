@@ -48,5 +48,9 @@ module.exports = {
 		argument: 'time',
 		description: 'The number of seconds to wait before each attempt to sync the config',
 		defaultValue: 120
+	},
+	runOnce: {
+		argument: 'runOnce',
+		description: 'Turn off polling for the agent. Update the config file once, then quit.'
 	}
 };
