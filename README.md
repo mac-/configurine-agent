@@ -18,12 +18,10 @@ node app.js [options]
     -c, --configurine-host <host>             (Required) The Configurine protocol, host, and port
     -C, --configurine-client-id <id>          (Required) The Configurine client ID
     -k, --configurine-key <key>               (Required) The Configurine shared key
-    -f, --config-file <location>              (Required) The location of the file to sync
+    -a, --apps-to-manage <array>              (Required) An array of json objects describing the apps to manager.  For example: [{"appName": "foo", "appVersion": "1.0.0", "configFile": "/opt/foo/config.js"}]
     -i, --indent-size <number>                (Optional) The number of spaces to indent the JSON with. 0 sets the indent to the TAB character. Defaults to: 0
-    -a, --app-name <name>                     (Required) The name of the application that the config entries are associated to
-    -A, --app-version <version>               (Required) The version of the application that the config entries are associated to
     -e, --environment <name>                  (Optional) The name of the environment that the config entries are associated to Defaults to: "production"
-    -p, --association-priority <association>  (Optional) When configurine returns multiple results, the agent needs to determine which associations are more important when deciding how to choose only one. Valid values are app and env Defaults to: "app"
+    -A, --association-priority <association>  (Optional) When configurine returns multiple results, the agent needs to determine which associations are more important when deciding how to choose only one. Valid values are app and env Defaults to: "app"
     -I, --interval <time>                     (Optional) The number of seconds to wait before each attempt to sync the config Defaults to: 120
     -r, --run-once <runOnce>                  (Optional) Turn off polling for the agent. Update the config file once, then quit.
 
