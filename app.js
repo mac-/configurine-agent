@@ -16,16 +16,6 @@ var fs = require('fs'),
 	}),
 	indentCharacter = (config.indentSize > 0) ? ' ' : '\t',
 	indentSize = Math.max(1, config.indentSize),
-	appAssociation = {
-		name: config.appName,
-		versions: [config.appVersion]
-	},
-	configurineClientOptions = {
-		associations: {
-			applications: [appAssociation],
-			environments: [config.environment]
-		}
-	},
 	associationPriority = {
 		applications: (config.associationPriority === 'app') ? 2 : 1,
 		environments: (config.associationPriority === 'env') ? 2 : 1
@@ -38,7 +28,7 @@ var fs = require('fs'),
 	//  - has both the matching app and env association
 	//  - has one of a matching app or env association (app or env may have a higher priority based on app settings (associationPriority))
 	//  - has no matching app or env associations
-	pickOne = function(entries) {
+	pickOne = function(entries, appAssociation) {
 		var sortedEntries = _.sortBy(entries, function(entry) {
 			var priority = 0;
 			for (var prop in associationPriority) {
@@ -52,41 +42,54 @@ var fs = require('fs'),
 		return sortedEntries.pop();
 	},
 
-	syncFile = function() {
-		log('info', 'Attempting to read file: ' + config.configFile);
-		var configFileJson;
-		try {
-			configFileJson = JSON.parse(fs.readFileSync(config.configFile));
-		}
-		catch (ex) {
-			return log('error', 'Unable to read/parse file: ' + config.configFile, ex);
-		}
-		var names = _.keys(configFileJson);
-		client.getConfigByName(names, configurineClientOptions, function(err, result) {
-			if (err) {
-				return log('error', 'Error retrieving config (' + names + ') from Configurine. ', err);
+	syncFiles = function() {
+		_.each(config.appsToManage, function(appToManage) {
+			var appAssociation = {
+				name: appToManage.appName,
+				versions: [appToManage.appVersion]
+			},
+			configurineClientOptions = {
+				associations: {
+					applications: [appAssociation],
+					environments: [config.environment]
+				}
+			};
+
+			log('info', 'Attempting to read file: ' + appToManage.configFile);
+			var configFileJson;
+			try {
+				configFileJson = JSON.parse(fs.readFileSync(appToManage.configFile));
 			}
-			var prop, groups = _.groupBy(result, function(entry) { return entry.name; });
-			for (prop in groups) {
-				if (groups.hasOwnProperty(prop)) {
-					if (groups[prop].length === 1) {
-						configFileJson[prop] = groups[prop][0].value;
-					}
-					else {
-						configFileJson[prop] = pickOne(groups[prop]).value;
+			catch (ex) {
+				return log('error', 'Unable to read/parse file: ' + appToManage.configFile, ex);
+			}
+			var names = _.keys(configFileJson);
+			client.getConfigByName(names, configurineClientOptions, function(err, result) {
+				if (err) {
+					return log('error', 'Error retrieving config (' + names + ') from Configurine. ', err);
+				}
+				var prop, groups = _.groupBy(result, function(entry) { return entry.name; });
+				for (prop in groups) {
+					if (groups.hasOwnProperty(prop)) {
+						if (groups[prop].length === 1) {
+							configFileJson[prop] = groups[prop][0].value;
+						}
+						else {
+							configFileJson[prop] = pickOne(groups[prop], appAssociation).value;
+						}
 					}
 				}
-			}
-			fs.writeFileSync(config.configFile, jsBeautifier(JSON.stringify(configFileJson), { 'indent_char': indentCharacter, 'indent_size': indentSize }));
-			log('info', 'Updated file: ' + config.configFile);
+				fs.writeFileSync(appToManage.configFile, jsBeautifier(JSON.stringify(configFileJson), { 'indent_char': indentCharacter, 'indent_size': indentSize }));
+				log('info', 'Updated file: ' + appToManage.configFile);
+			});
 		});
 	};
 
 
-syncFile();
+syncFiles();
 
 if (!config.runOnce) {
     setInterval(function() {
-        syncFile();
+        syncFiles();
     }, config.interval * 1000);
 }
