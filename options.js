@@ -17,7 +17,8 @@ module.exports = {
 	appsToManage: {
 		argument: 'array',
 		description: 'An array of json objects describing the apps to manager.  For example: [{"appName": "foo", "appVersion": "1.0.0", "configFile": "/opt/foo/config.js"}]',
-		required: true
+		required: true,
+		type: Object
 	},
 	indentSize: {
 		argument: 'number',
