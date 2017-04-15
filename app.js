@@ -39,7 +39,7 @@ var fs = require('fs'),
 			}
 			return priority;
 		});
-		return sortedEntries.pop();
+		return sortedEntries.shift();
 	},
 
 	syncFiles = function() {
